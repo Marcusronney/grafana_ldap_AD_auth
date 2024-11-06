@@ -1,0 +1,41 @@
+
+bind_dn = "grafana@dominio.com" #Distinguished Name é o usuário que o Grafana irá usar para se autenticar.
+
+bind_password = "Senha_do_usuario_grafana" #senha
+
+timeout = 10 #tempo que o Grafana irá aguardar uma resposta do servidor Ldap.
+
+search_filter = "(sAMAccountName=%s)" #Filtro para pesquisar os usuários no Ldap. (sAMAccountName=%s) é um padrão comum de pesquisa do Active Directory, basicamente o =%s irá ser substituído pelos nomes dos usuários. 
+
+search_base_dns = ["dc=dominio,dc=com"] #exemplo: empresa.com. Cria uma lista dos DNs para realizar a busca de usuários.
+
+group_search_base_dns = ["ou=Monitoramento,dc=dominio,dc=com"] #OU do local onde estão os grupos do grafana.
+
+group_search_filter_user_attribute = "sAMAccountName" #Parametro usado para comprar o usuário autenticado com os usuários identificados na busca.
+
+[servers.attributes]
+name = "givenName" #Primeiro campo de nome.
+surname = "sn" #Campo sobrenome.
+username = "sAMAccountName" #busca o login.
+member_of = "memberOf" #busca os grupos que o usuário pertence.
+email = "mail" #campo e-mail
+
+#Mapeamentos de permissões dos Grupos do AD
+#group_dn: define o local completo dos grupos destinados ao Grafana no AD.
+
+[[servers.group_mappings]]
+group_dn = "CN=adm_grafana,OU=Monitoramento,dc=dominio,dc=com"
+org_role = "Admin"
+
+[[servers.group_mappings]]
+group_dn = "cn=editor_grafana,ou=Monitoramento,dc=dominio,dc=com"
+org_role = "Editor"
+
+[[servers.group_mappings]]
+group_dn = "CN=view_grafana,OU=Monitoramento,dc=dominio,dc=com"
+org_role = "Viewer"
+
+[[servers.group_mappings]]
+# Esse mapeamento wildcard atribui o papel de Viewer para usuários fora dos grupos específicos
+group_dn = "*"
+org_role = "Viewer"
